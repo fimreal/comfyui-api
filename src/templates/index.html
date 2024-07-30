@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComfyUI Workflow Processor</title>
+    <!-- 引入 Bootstrap 样式 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- 引入 CodeMirror 样式 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.css">
+    <style>
+        /* 设置 CodeMirror 的样式 */
+        .CodeMirror {
+            border: 1px solid #ddd;
+            height: auto; /* 高度自适应 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">ComfyUI Workflow Processor</h1>
+        
+        <form id="workflowForm" class="mt-4">
+            <div class="form-group">
+                <label for="serverAddress">ComfyUI Server Address:</label>
+                <input type="text" class="form-control" id="serverAddress" placeholder="http://127.0.0.1:8188">
+            </div>
+            <div class="form-group">
+                <label for="workflowInput">Paste your workflow.json here:</label>
+                <textarea id="workflowInput" placeholder="Enter JSON..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Submit</button>
+        </form>
+        <div id="output" class="mt-4"></div>
+    </div>
+
+    <!-- 引入 jQuery 和 Bootstrap 的 JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- 引入 CodeMirror 和 JSONLint 库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/mode/javascript/javascript.min.js"></script>
+    
+    <!-- 确保引入 JSONLint -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsonlint/1.6.2/jsonlint.min.js"></script>
+
+    <script>
+        // 初始化 CodeMirror 编辑器
+        var editor = CodeMirror.fromTextArea(document.getElementById("workflowInput"), {
+            lineNumbers: true,
+            mode: "application/json",
+            theme: "default"
+        });
+
+        document.getElementById('workflowForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const serverAddress = document.getElementById('serverAddress').value;
+            const workflowJson = editor.getValue();
+
+            // 校验 JSON 语法
+            try {
+                jsonlint.parse(workflowJson); // 使用 JSONLint 检查 JSON 语法
+            } catch (e) {
+                alert('Invalid JSON: ' + e.message);
+                return;
+            }
+
+            const response = await fetch('/api/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ workflow: workflowJson, server: serverAddress }),
+            });
+
+            const result = await response.json();
+            document.getElementById('output').innerText = JSON.stringify(result, null, 2);
+        };
+    </script>
+</body>
+</html>

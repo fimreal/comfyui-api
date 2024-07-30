@@ -1,0 +1,21 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fa; /* 设置页面背景颜色 */
+}
+
+h1 {
+    color: #333;
+}
+
+textarea {
+    resize: none; /* 禁止手动调整大小 */
+}
+
+#output {
+    margin-top: 20px;
+    white-space: pre-wrap; /* 保留格式 */
+    background-color: #ffffff; /* 改为白色背景 */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+}
